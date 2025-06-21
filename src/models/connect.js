@@ -6,7 +6,7 @@ export const sql = postgres({
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  port: 5432,
+  ssl: 'require'
 });
 
 export default sql;
