@@ -21,9 +21,9 @@ const get_usesr_posts = async (page, limit, usuario_id) => {
     }
 }
 
-const get_posts = async (page, limit, search) => {
+const get_posts = async (page, limit, search,tipo) => {
     try {
-        const posts = await post_model.get_posts(page, limit, search);
+        const posts = await post_model.get_posts(page, limit, search,tipo);
         return posts;
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -87,7 +87,7 @@ const delete_post = async (post_id) => {
 
         return deletedPost;
     } catch (error) {
-        console.error('Error deleting post:', error);
+        console.error(error);
         throw new Error('Internal Server Error');
     }
 }

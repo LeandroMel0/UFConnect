@@ -7,7 +7,8 @@ import like_controller from "../controllers/like_controller.js";
 ////auth.ensureUserExists, auth.ensurePostExists, auth.ensurePostNotLiked
 
 router.post("/like", auth.authMiddleware, like_controller.like_post); // Like a post
-router.delete("/unlike", auth.authMiddleware, like_controller.unlike_post); // Unlike a post
-router.get("/likes/:postId", like_controller.get_likes_by_post_id); // Get likes by post ID
+router.post("/unlike", auth.authMiddleware, like_controller.unlike_post); // Unlike a post
+router.get("/likes",auth.authMiddleware, like_controller.get_likes_by_post_id); // Get likes by post ID
+router.get("/ilike",auth.authMiddleware, like_controller.get_user_liked_posts); //Get users liked posts
 
 export default router;

@@ -6,9 +6,12 @@ const get_usesr_posts = async (page, limit, usuario_id) => {
         limit = parseInt(limit) || 10;
         const offset = (page - 1) * limit;
 
-        const posts = await sql`
-            SELECT * FROM posts WHERE usuario_id = ${usuario_id} LIMIT ${limit} OFFSET ${offset}
-        `;
+        const posts = await sql`SELECT P.*, U.nome, U.cargo, U.avatar_url
+                    FROM posts P
+                    JOIN users U ON U.id = P.usuario_id
+                    WHERE P.usuario_id = ${usuario_id}
+                    ORDER BY P.data_postagem DESC
+                    LIMIT ${limit} OFFSET ${offset}`;         
         return posts;
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -16,7 +19,7 @@ const get_usesr_posts = async (page, limit, usuario_id) => {
     }
 }
 
-const get_posts = async (page, limit, search) => {
+const get_posts = async (page, limit, search,tipo) => {
     try {
         // Valores padrão
         page = parseInt(page) || 1;
@@ -28,15 +31,17 @@ const get_posts = async (page, limit, search) => {
 
         if (searchTerm) {
             posts = await sql`
-                SELECT * FROM posts
-                WHERE texto ILIKE ${searchTerm}
-                LIMIT ${limit} OFFSET ${offset}
-            `;
+                SELECT P.*, U.nome, U.cargo, U.avatar_url FROM posts P JOIN users U 
+                ON U.id = P.usuario_id
+                WHERE P.texto ILIKE ${searchTerm} AND ORDER BY P.data_postagem DESC
+                LIMIT ${limit} OFFSET ${offset}`;
+            
         } else {
             posts = await sql`
-                SELECT * FROM posts
-                LIMIT ${limit} OFFSET ${offset}
-            `;
+                SELECT P.*, U.nome, U.cargo, U.avatar_url FROM posts P JOIN users U 
+                ON U.id = P.usuario_id WHERE tipo = ${tipo}
+                ORDER BY P.data_postagem DESC
+                `;
         }
 
         return posts;
@@ -48,10 +53,10 @@ const get_posts = async (page, limit, search) => {
 
 const create_post = async (post_data) => {
     try {
-        const {usuario_id, texto, imagem_url}= post_data;
+        const {usuario_id, texto, imagem_url,tipo}= post_data;
         const query = await sql`
-            INSERT INTO posts (usuario_id, texto, imagem_url)
-            VALUES (${usuario_id}, ${texto}, ${imagem_url})
+            INSERT INTO posts (usuario_id, texto, imagem_url,tipo)
+            VALUES (${usuario_id}, ${texto}, ${imagem_url},${tipo})
             RETURNING *
         `;
 
@@ -104,7 +109,7 @@ const get_post_by_id = async (post_id) => {
     }
 }
 
- export const get_post_owner = async (post_id) => {
+export const get_post_owner = async (post_id) => {
     try {
         const query = await sql`
             SELECT usuario_id FROM posts WHERE id = ${post_id}
@@ -119,28 +124,7 @@ const get_post_by_id = async (post_id) => {
     }
 }
 
-export const like_count = async (post_id,op) => {
 
-
-    try {
-        let query;
-        if(op == 1){
-            query = await sql`
-            UPDATE posts SET likes = likes+1 WHERE postagem_id = ${post_id}
-        `;
-        }else{
-            query = await sql`
-            UPDATE posts SET likes = likes-1 WHERE postagem_id = ${post_id}
-        `;
-        }   
-
-        return query;
-
-    } catch (error) {
-        console.error('Error fetching like count:', error);
-        throw new Error('Internal Server Error');
-    }
-}
 
 
 export default {

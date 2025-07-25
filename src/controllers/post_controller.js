@@ -19,8 +19,9 @@ const get_users_posts = async (req, res) => {
 
 const get_posts = async (req, res) => {
     const { page = 1, limit = 10, search = '' } = req.query;
+    const tipo = req.query.tipo || 0;
     try {
-        const posts = await post_services.get_posts(page, limit, search);
+        const posts = await post_services.get_posts(page, limit, search,tipo);
         return res.status(200).json(posts);
     } catch (error) {
         console.error('Error fetching posts:', error);

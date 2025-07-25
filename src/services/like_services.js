@@ -1,94 +1,79 @@
-import post_model from "../models/post_model.js";  
-import schema from '../utils/joi_validation.js';
-
+import like_model from "../models/like_model.js";
 
 const like_post = async (request) => {
-    const { usuario_id, postagem_id } = request.body;
+    const postagem_id = request.query.id;
+    const usuario_id = request.usuario_id
 
-    // Validate the input data
-    const { error} = schema.like_schema.validate({ usuario_id, postagem_id });
-    if (error) {
 
-        const validationError = new Error(error.details[0].message);
-        validationError.statusCode = 400;
-        throw validationError;
+
+    const result = await like_model.like_post(usuario_id, postagem_id);
+
+    if (result.length === 0 || result == null) {
+        const notFoundError = new Error('Post not found or already liked');
+        notFoundError.statusCode = 404;
+        throw notFoundError;
     }
 
-    try {
-        const result = await post_model.like_post(usuario_id, postagem_id);
+    return result;
 
-        if(result.length === 0 || result == null) {
-            const notFoundError = new Error('Post not found or already liked');
-            notFoundError.statusCode = 404;
-            throw notFoundError;
-        }
 
-        return result;
-
-    } catch (error) {
-        console.error('Error liking post:', error);
-        throw new Error('Internal Server Error');
-    }
 }
 
 const unlike_post = async (request) => {
-    const { usuario_id, postagem_id } = request.body;
+    const postagem_id = request.query.id;
+    const usuario_id = request.usuario_id
 
-    // Validate the input data
-    const { error } = schema.like_schema.validate({ usuario_id, postagem_id });
-    if (error) {
-        const validationError = new Error(error.details[0].message);
-        validationError.statusCode = 400;
-        throw validationError;
+
+
+    const result = await like_model.unlike_post(usuario_id, postagem_id);
+
+    if (result.length === 0 || result == null) {
+        const notFoundError = new Error('Post not found or not liked');
+        notFoundError.statusCode = 404;
+        throw notFoundError;
     }
 
-    try {
-        const result = await post_model.unlike_post(usuario_id, postagem_id);
+    return result;
 
-        if(result.length === 0 || result == null) {
-            const notFoundError = new Error('Post not found or not liked');
-            notFoundError.statusCode = 404;
-            throw notFoundError;
-        }
-
-        return result;
-
-    } catch (error) {
-        console.error('Error unliking post:', error);
-        throw new Error('Internal Server Error');
-    }
 }
 
 const get_likes_by_post_id = async (request) => {
-    const { postagem_id } = request.params;
 
-    // Validate the input data
-    const { error } = schema.like_schema.validate({ postagem_id });
-    if (error) {
-        const validationError = new Error(error.details[0].message);
-        validationError.statusCode = 400;
-        throw validationError;
+    const postagem_id = request.query.id;
+
+
+    const result = await like_model.get_likes_by_post_id(postagem_id);
+
+    if (result.length === 0 || result == null) {
+        const notFoundError = new Error('Post not found or no likes');
+        notFoundError.statusCode = 404;
+        throw notFoundError;
     }
 
-    try {
-        const result = await post_model.get_likes_by_post_id(postagem_id);
+    return result;
 
-        if(result.length === 0 || result == null) {
-            const notFoundError = new Error('Post not found or no likes');
-            notFoundError.statusCode = 404;
-            throw notFoundError;
-        }
+}
 
-        return result;
+const get_user_liked_posts = async (request) => {
 
-    } catch (error) {
-        console.error('Error fetching likes by post ID:', error);
-        throw new Error('Internal Server Error');
+    const users_id = request.usuario_id;
+
+    const result = await like_model.get_user_liked_posts(users_id);
+
+    if (result.length === 0 || result == null) {
+        const notFoundError = new Error('Post not found or no likes');
+        notFoundError.statusCode = 404;
+        throw notFoundError;
     }
+
+    return result;
+
+
 }
 
 export default {
     like_post,
     unlike_post,
-    get_likes_by_post_id
+    get_likes_by_post_id,
+    get_user_liked_posts
 };

@@ -6,7 +6,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const authMiddleware = (req, res, next) => {
 
     const token = (req.headers.authorization || '').replace('Bearer ', '');
-
+    console.log(req.headers.authorization)
+    console.log(token)
     if (!token) {
         return res.status(401).json({error: 'Token de autenticação não fornecido'});
     }
@@ -57,4 +58,4 @@ const ensurePostOwner = async (req, res, next) => {
 
 
 
-export default {authMiddleware, ensureOwner,ensurePostOwner};
+export default {authMiddleware,ensureOwner,ensurePostOwner};
